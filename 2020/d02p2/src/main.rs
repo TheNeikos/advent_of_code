@@ -52,17 +52,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let lines: Vec<String> = handle.lines().collect::<Result<_, _>>()?;
 
-    let valid_count = lines
+    let passwords_policies: Vec<_> = lines
         .iter()
         .map(|line| password_and_policy(&line))
-        .flatten()
-        .filter_map(|(_, (password, policy))| {
-            if policy.check(password) {
-                Some(())
-            } else {
-                None
-            }
-        })
+        .collect::<Result<_, _>>()
+        .map_err(|input| format!("Invalid line: {}", input))?;
+
+    let valid_count = passwords_policies
+        .iter()
+        .map(|(_, (password, policy))| policy.check(password))
+        .filter(|b| *b)
         .count();
 
     println!("Check has given us {} valid passwords", valid_count);
