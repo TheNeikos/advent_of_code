@@ -1,10 +1,10 @@
-use std::ops::RangeInclusive;
-use std::io::BufRead;
 use nom::{
-    IResult,
+    character::complete::{alpha1, anychar, char, digit1, space1},
     combinator::map_res,
-    character::complete::{digit1,char, space1, anychar, alpha1},
+    IResult,
 };
+use std::io::BufRead;
+use std::ops::RangeInclusive;
 
 struct PasswordPolicy {
     occurences: RangeInclusive<u64>,
@@ -13,7 +13,8 @@ struct PasswordPolicy {
 
 impl PasswordPolicy {
     fn check(&self, password: &str) -> bool {
-        let first = password.chars().nth(*self.occurences.start() as usize - 1) == Some(self.letter);
+        let first =
+            password.chars().nth(*self.occurences.start() as usize - 1) == Some(self.letter);
         let second = password.chars().nth(*self.occurences.end() as usize - 1) == Some(self.letter);
 
         first ^ second
@@ -48,14 +49,23 @@ fn password_and_policy(input: &str) -> IResult<&str, (&str, PasswordPolicy)> {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let stdin = std::io::stdin();
     let handle = stdin.lock();
-    
-    let lines: Vec<String> = handle.lines().collect::<Result<_,_>>()?;
 
-    let valid_count = lines.iter().map(|line| password_and_policy(&line)).flatten().filter_map(|(_, (password, policy))| {
-        if policy.check(password) { Some(()) } else { None }
-    }).count();
+    let lines: Vec<String> = handle.lines().collect::<Result<_, _>>()?;
+
+    let valid_count = lines
+        .iter()
+        .map(|line| password_and_policy(&line))
+        .flatten()
+        .filter_map(|(_, (password, policy))| {
+            if policy.check(password) {
+                Some(())
+            } else {
+                None
+            }
+        })
+        .count();
 
     println!("Check has given us {} valid passwords", valid_count);
-    
+
     Ok(())
 }

@@ -1,5 +1,5 @@
 [package]
-name = "part1"
+name = "d01p1"
 version = "0.1.0"
 authors = ["Marcel Müller <neikos@neikos.email>"]
 edition = "2018"
